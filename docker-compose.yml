@@ -1,0 +1,48 @@
+version: '3.8'
+
+services:
+
+  service_main_crawler:
+    container_name: service_main_crawler
+    build:
+      context: ./service_main_crawler
+    working_dir: /app
+    volumes:
+      - ./service_main_crawler:/app/service_main_crawler/src   # Mount the project directory
+    depends_on:
+      - rabbitmq  
+    networks:
+      - car_crawler_network
+
+  service_main_saver:
+    container_name: service_main_saver
+    build:
+      context: ./service_main_saver
+    working_dir: /app
+    volumes:
+      - ./service_main_saver:/app/service_main_saver/src   # Mount the project directory
+    depends_on:
+      - rabbitmq  
+    networks:
+      - car_crawler_network
+
+  rabbitmq:
+    container_name: rabbitmq_service
+    hostname: 'rabbitmq_python' #Biar datanya ga ilang perlu ditambahin ini
+    image: rabbitmq:3-management  # RabbitMQ image with management plugin
+    ports:
+      - "5672:5672"       # Default port for RabbitMQ
+      - "15672:15672"     # Default port for RabbitMQ Management UI
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    networks:
+      - car_crawler_network
+volumes:
+  rabbitmq_data:
+    driver: local
+networks:
+  car_crawler_network:
+    driver: bridge
