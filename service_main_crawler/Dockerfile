@@ -3,16 +3,28 @@ FROM python:3.10-slim
 # Set working directory di dalam container
 WORKDIR /app
 
+# Install xvfb
+RUN apt-get update && apt-get install -y \
+    xvfb \
+    x11-utils \
+    x11-xserver-utils \
+    libnss3 \
+    fonts-liberation \
+    && rm -rf /var/lib/apt/lists/*
+
+ENV DISPLAY=:99
 
 # Salin requirements.txt dan skrip startup.sh
 COPY requirements.txt /app/requirements.txt
 RUN pip install --no-cache-dir -r /app/requirements.txt
+RUN playwright install --with-deps
 
 # Copy source code and startup script
 COPY src /app/src
 
-CMD ["python", "src/app.py"]
+# Wrap the Playwright command with xvfb-run
+# ENTRYPOINT ["xvfb-run", "--"]
+# CMD ["python", "src/app.py"]
 
-# Set ENTRYPOINT untuk menjalankan startup.sh
-# ENTRYPOINT ["/app/startup.sh"]
-# CMD ["/bin/bash", "-c", "source /app/.venv/bin/activate && exec /bin/bash"]
+ENTRYPOINT []
+CMD ["bash", "-c", "Xvfb :99 -screen 0 1024x768x24 & python src/app.py"]

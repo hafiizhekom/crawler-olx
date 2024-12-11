@@ -1,31 +1,32 @@
-import pika
-import time
+import logging
+import asyncio
+import json
+from crawler_service import CrawlerService
+from rabbitmq_service import RabbitMQService
 
-def connect_to_rabbitmq():
-    while True:
-        try:
-            print("Trying to connect to RabbitMQ...")
-            connection = pika.BlockingConnection(
-                pika.ConnectionParameters(
-                    host='rabbitmq_python',  # Hostname sesuai dengan Docker Compose
-                    port=5672,
-                    credentials=pika.PlainCredentials('guest', 'guest')
-                )
-            )
-            print("Connected to RabbitMQ!")
-            return connection
-        except pika.exceptions.AMQPConnectionError as e:
-            print(f"Connection failed: {e}")
-            time.sleep(5)
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
-# Establish connection
-connection = connect_to_rabbitmq()
-channel = connection.channel()
+async def main():
+    host = "https://www.olx.co.id"
+    url = "/mobil-bekas_c198"
 
-# Proceed with RabbitMQ operations
-channel.queue_declare(queue='hello')
-channel.basic_publish(exchange='',
-                      routing_key='hello',
-                      body='Hello World!')
-print(" [x] Sent 'Hello World!'")
-connection.close()
+    crawler = CrawlerService(logger)
+    # car_details_service = CarDetailsService(logger)
+    rms = RabbitMQService()
+
+    async for car in crawler.crawl_olx_cars(host, url):
+        # car_details = await car_details_service.get_car_details(host, car['url'])
+        # if car_details:
+        #     car.update(car_details)
+        # cars.append(car)
+        rms.send_message('store_head',  json.dumps(car))
+        rms.send_message('crawl_detail',  json.dumps(car))
+        # db_saver.save_car(car)
+        # logger.info({car})
+        logger.info(f"Store car: {car['brand']} {car['model']} to saving")
+
+    # logger.info(f"Scraped all car header processing to the database.")
+
+if __name__ == "__main__":
+    asyncio.run(main())
