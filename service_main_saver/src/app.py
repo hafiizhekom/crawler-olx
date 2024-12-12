@@ -1,14 +1,10 @@
-import pymongo
+from rabbitmq_service import RabbitMQConsumer
+from sqlite_service import SQLiteService
 
-def save_to_mongodb(data):
-    """Menyimpan data ke MongoDB."""
-    try:
-        client = MongoClient(MONGO_URI)
-        db = client[MONGO_DB]
-        collection = db[MONGO_COLLECTION]
-        collection.insert_one(data)
-        print("Data berhasil disimpan ke MongoDB:", data)
-    except Exception as e:
-        print("Error saat menyimpan ke MongoDB:", e)
-    finally:
-        client.close()
+if __name__ == "__main__":
+    
+    sqlite_service = SQLiteService()
+    consumer = RabbitMQConsumer()
+    consumer.connect()
+    consumer.declare_queue()
+    consumer.start_consuming(sqlite_service)

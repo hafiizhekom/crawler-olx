@@ -10,6 +10,7 @@ RUN apt-get update && apt-get install -y \
     x11-xserver-utils \
     libnss3 \
     fonts-liberation \
+    # dbus \
     && rm -rf /var/lib/apt/lists/*
 
 ENV DISPLAY=:99
@@ -27,4 +28,5 @@ COPY src /app/src
 # CMD ["python", "src/app.py"]
 
 ENTRYPOINT []
+# CMD ["bash", "-c", "dbus-daemon --system --fork && Xvfb :99 -screen 0 1024x768x24 & python src/app.py"]
 CMD ["bash", "-c", "Xvfb :99 -screen 0 1024x768x24 & python src/app.py"]

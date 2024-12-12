@@ -25,6 +25,7 @@ services:
       - rabbitmq  
     networks:
       - car_crawler_network
+    command: ["python", "src/app.py"]
 
   rabbitmq:
     container_name: rabbitmq_service
@@ -46,22 +47,9 @@ services:
     networks:
       - car_crawler_network
 
-  # mongodb:
-  #   image: mongo:6.0  # Versi MongoDB, bisa disesuaikan
-  #   container_name: mongodb_container
-  #   ports:
-  #     - "27017:27017"  # Default port MongoDB
-  #   volumes:
-  #     - mongodb_data:/data/db  # Volume untuk menyimpan data secara persisten
-  #   environment:
-  #     MONGO_INITDB_ROOT_USERNAME: root  # Username default
-  #     MONGO_INITDB_ROOT_PASSWORD: password  # Password default
-
 volumes:
   rabbitmq_data:
     driver: local
-  # mongodb_data:
-  #   driver: local
 networks:
   car_crawler_network:
     driver: bridge
