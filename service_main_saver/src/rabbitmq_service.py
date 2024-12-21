@@ -73,8 +73,6 @@ class RabbitMQService:
         # Use provided callback or default
         process_callback = callback or default_callback
 
-        self.channel.basic_qos(prefetch_count=1)
-
         self.channel.basic_consume(
             queue=self.queue_name, on_message_callback=process_callback, auto_ack=False
         )

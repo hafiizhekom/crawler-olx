@@ -34,6 +34,35 @@ services:
     working_dir: /app
     volumes:
       - ./service_main_saver/src:/app/src   # Mount the project directory
+      - ./service_main_saver/cars.db:/app/cars.db
+    depends_on:
+      - rabbitmq  
+    networks:
+      - car_crawler_network
+    command: ["python", "src/app.py"]
+
+  service_detail_saver:
+    container_name: service_detail_saver
+    build:
+      context: ./service_detail_saver
+    working_dir: /app
+    volumes:
+      - ./service_detail_saver/src:/app/src   # Mount the project directory
+      - ./service_detail_saver/cars_detail.db:/app/cars_detail.db
+    depends_on:
+      - rabbitmq  
+    networks:
+      - car_crawler_network
+    command: ["python", "src/app.py"]
+
+  service_image_saver:
+    container_name: service_image_saver
+    build:
+      context: ./service_image_saver
+    working_dir: /app
+    volumes:
+      - ./service_image_saver/src:/app/src   # Mount the project directory
+      - ./service_image_saver/images.db:/app/images.db
     depends_on:
       - rabbitmq  
     networks:

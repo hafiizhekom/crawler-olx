@@ -13,25 +13,17 @@ if __name__ == "__main__":
     sqlite_service = SQLiteService()
     sqlite_service.connect()
 
-    consumer = RabbitMQService(queue_name="store_head")
+    consumer = RabbitMQService(queue_name="save_image")
     consumer.declare_queue()
-
-    publisher = RabbitMQService(queue_name="crawl_detail")
-    publisher.declare_queue()
 
     async def process_message(ch, method, properties, body):
         try:
             if body is not None:
                 message = body.decode()
-                car = json.loads(message)
-                print(f" [x] Received {car}")
+                images = json.loads(message)
+                print(f" [x] Received {images}")
 
-                if car_id_saved := sqlite_service.save_message(car) :
-                    car_detail_params = {
-                        'car_id' : car_id_saved,
-                        'url' : car['url']
-                    }
-                    publisher.send_message('crawl_detail',  json.dumps(car_detail_params))
+                if sqlite_service.save_message(images) :
                     ch.basic_ack(delivery_tag=method.delivery_tag)
                 else:
                     logger.info(f"Message requeued after failed saving attempts")
