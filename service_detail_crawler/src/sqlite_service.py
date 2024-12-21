@@ -27,24 +27,20 @@ class SQLiteService:
             )
 
     def save_message(self, car):
-        try:
-            """Save a message to the database."""
-            with self.connection:
-                cursor = self.connection.execute(
-                    "INSERT OR IGNORE INTO cars_head (brand, model, price, location, url) VALUES (?, ?, ?, ?, ?)", 
-                    (
-                        car['brand'],
-                        car['model'],
-                        car['price'],
-                        car['location'],
-                        car['url']
-                    )
+        """Save a message to the database."""
+        print("KOCAK")
+        print(type(car))
+        with self.connection:
+            self.connection.execute(
+                "INSERT OR IGNORE INTO cars_head (brand, model, price, location, url) VALUES (?, ?, ?, ?, ?)", 
+                (
+                    car['brand'],
+                    car['model'],
+                    car['price'],
+                    car['location'],
+                    car['url']
                 )
-                print(f"Data '{car}' saved" )
-                return cursor.lastrowid
-        except Exception as e:
-            print(f"Error: {e}")
-            return False
+            )
 
     def close_connection(self):
         """Close the connection to the database."""
