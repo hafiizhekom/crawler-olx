@@ -1,0 +1,28 @@
+image: alpine:latest
+
+before_script:
+  - apk update && apk add git
+
+mirror_to_github:
+  script:
+    # Konfigurasi Git
+    - git config --global user.name "${GITHUB_USERNAME}"
+    - git config --global user.email "${GITHUB_EMAIL}"
+    
+    # Clone repository dengan depth penuh
+    - git clone --mirror "${CI_REPOSITORY_URL}" repo
+    - cd repo
+    
+    # Tambahkan remote GitHub dan push
+    - git remote add github https://${GITHUB_USERNAME}:${GITHUB_TOKEN}@github.com/${GITHUB_USERNAME}/${REPO_NAME}.git
+    - git push --mirror github
+  
+  # Jadwalkan kapan sync dijalankan
+  only:
+    - pushes        # Setiap ada push
+    - schedules     # Sesuai jadwal
+  
+  # Atur jadwal (opsional)
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+      when: always
